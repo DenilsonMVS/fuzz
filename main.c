@@ -7,7 +7,8 @@
 #include <sys/wait.h>
 
 int fuzz_target(const uint8_t *data, size_t size) {
-    const char filename[] = "image";
+    char filename[] = "image";
+    char eog[] = "eog";
     
     // Open the file for writing
     int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -36,7 +37,7 @@ int fuzz_target(const uint8_t *data, size_t size) {
 
     if (pid == 0) {
         // Child process: execute 'eog' with the image file as argument
-        char *argv[] = {"eog", filename, NULL};
+        char * argv[] = {eog, filename, NULL};
         execvp(argv[0], argv);
 
         // If exec fails
@@ -61,7 +62,12 @@ int fuzz_target(const uint8_t *data, size_t size) {
     return 0;
 }
 
-int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-    return fuzz_target(data, size);
+int main() {
+    fuzz_target(NULL, 0);
+    return 0;
 }
+
+// int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+//     return fuzz_target(data, size);
+// }
 

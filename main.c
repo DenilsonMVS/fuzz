@@ -62,12 +62,12 @@ int fuzz_target(const uint8_t *data, size_t size) {
     return 0;
 }
 
-int main() {
-    fuzz_target(NULL, 0);
-    return 0;
-}
-
-// int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-//     return fuzz_target(data, size);
+// int main() {
+//     fuzz_target(NULL, 0);
+//     return 0;
 // }
+
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    return fuzz_target(data, size);
+}
 

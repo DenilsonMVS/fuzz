@@ -9,14 +9,14 @@ uint8_t *add_image_header(const uint8_t *data, size_t size, const uint8_t *heade
     uint8_t *new_data = malloc(header_size + size);
     if (new_data) {
         memcpy(new_data, header, header_size);
-        memcpy(new_data + header_size, *data, size);
+        memcpy(new_data + header_size, data, size);
     }
     return new_data;
 }
 
 int fuzz_target(const uint8_t *data, size_t size) {
     int x, y, comp;
-    const uint8_t *m = stbi_load_from_memory(data, size, &x, &y, &comp, 0);
+    uint8_t *m = stbi_load_from_memory(data, size, &x, &y, &comp, 0);
     if (m) {
         stbi_image_free(m);
     }

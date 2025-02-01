@@ -95,7 +95,20 @@ project.yaml
 
 \section{Testes Desenvolvidos}
 
+Foram realizadas duas baterias de testes. A primeira consistia
+em simplesmente passar o valor fornecido pelo fuzzer diretamente para
+a função a ser testada. No entanto essa abordagem gera muitas instâncias
+que são trivialmente descartadas pela função. Isso acontece pois
+a maioria das instâncias não possuem os bytes iniciais de identificação
+do formato do arquivo.
 
+A segunda bateria consistia em adicionar os identificadores do formato
+do arquivo de imagem antes dos dados gerados pelo fuzzer. Dessa forma,
+a chance das entradas serem trivialmente descartadas eram reduzidas,
+aumentando a chance de causar algum erro.
 
+\section{Resultados}
+
+Não foram encontrados bugs no código.
 
 \end{document}

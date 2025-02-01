@@ -5,15 +5,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-void add_image_header(const uint8_t **data, size_t *size, const uint8_t *header, size_t header_size) {
-    uint8_t *new_data = malloc(header_size + *size);
+uint8_t *add_image_header(const uint8_t *data, size_t size, const uint8_t *header, size_t header_size) {
+    uint8_t *new_data = malloc(header_size + size);
     if (new_data) {
         memcpy(new_data, header, header_size);
-        memcpy(new_data + header_size, *data, *size);
-
-        *data = new_data;
-        *size += header_size;
+        memcpy(new_data + header_size, *data, size);
     }
+    return new_data;
 }
 
 int fuzz_target(const uint8_t *data, size_t size) {
@@ -26,14 +24,6 @@ int fuzz_target(const uint8_t *data, size_t size) {
 }
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-    int64_t seed = 0;
-    for(int i = 0; i < size; i++) {
-        seed *= 33;
-        seed += data[i];
-        seed %= 1000000007;
-    } 
-    srand(seed);
-
     static const uint8_t jpeg_header[] = {0xFF, 0xD8};
     static const uint8_t png_header[] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
     static const uint8_t bmp_header[] = {0x42, 0x4D};
@@ -44,21 +34,30 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     static const uint8_t pic_header[] = {0x53, 0x50, 0x43};
     static const uint8_t pnm_header[] = {'P', '5'};
 
-    int format_choice = rand() % 9;
+    // Array of headers and their sizes
+    const struct {
+        const uint8_t *header;
+        size_t size;
+    } headers[] = {
+        {jpeg_header, sizeof(jpeg_header)},
+        {png_header, sizeof(png_header)},
+        {bmp_header, sizeof(bmp_header)},
+        {psd_header, sizeof(psd_header)},
+        {tga_header, sizeof(tga_header)},
+        {gif_header, sizeof(gif_header)},
+        {hdr_header, sizeof(hdr_header)},
+        {pic_header, sizeof(pic_header)},
+        {pnm_header, sizeof(pnm_header)}
+    };
 
-    switch (format_choice) {
-        case 0: add_image_header(&data, &size, jpeg_header, sizeof(jpeg_header)); break;
-        case 1: add_image_header(&data, &size, png_header, sizeof(png_header)); break;
-        case 2: add_image_header(&data, &size, bmp_header, sizeof(bmp_header)); break;
-        case 3: add_image_header(&data, &size, psd_header, sizeof(psd_header)); break;
-        case 4: add_image_header(&data, &size, tga_header, sizeof(tga_header)); break;
-        case 5: add_image_header(&data, &size, gif_header, sizeof(gif_header)); break;
-        case 6: add_image_header(&data, &size, hdr_header, sizeof(hdr_header)); break;
-        case 7: add_image_header(&data, &size, pic_header, sizeof(pic_header)); break;
-        case 8: add_image_header(&data, &size, pnm_header, sizeof(pnm_header)); break;
+    // Iterate over each format
+    for (int i = 0; i < 9; ++i) {
+        uint8_t *buf = add_image_header(data, size, headers[i].header, headers[i].size);
+        if (buf) {
+            fuzz_target(buf, headers[i].size + size);
+            free(buf);
+        }
     }
 
-    const int result = fuzz_target(data, size);
-    free(data);
-    return result;
+    return 0;
 }

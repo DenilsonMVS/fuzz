@@ -1,0 +1,101 @@
+\documentclass[a4paper,12pt]{article}
+
+% Pacotes
+\usepackage[utf8]{inputenc}   % Codificação do arquivo
+\usepackage{amsmath}           % Pacote para matemática
+\usepackage{graphicx}          % Pacote para incluir gráficos
+\usepackage{hyperref}          % Para links clicáveis
+\usepackage{fancyhdr}          % Para cabeçalhos personalizados
+\usepackage{geometry}          % Para personalizar margens
+
+% Definir as margens
+\geometry{top=3cm, bottom=3cm, left=2.5cm, right=2.5cm}
+
+% Cabeçalho
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Fuzzing em stb image}  % Cabeçalho à esquerda
+\fancyhead[C]{Denilson Martins Vieira Santos}         % Cabeçalho centralizado
+\fancyhead[R]{31 de Janeiro de 2025}                  % Cabeçalho à direita
+
+\title{Fuzzing em stb image}
+\author{Denilson Martins Vieira Santos}
+\date{31 de Janeiro de 2025}  % Data de criação
+
+\begin{document}
+
+\maketitle  % Gera o título
+
+\tableofcontents  % Gera o índice
+
+\section{Projeto escolhido}
+
+O projeto escolhido foi a biblioteca stb image (https://github.com/nothings/stb/tree/master).
+É uma biblioteca bastante simples, facilmente de ser utilizada em qualquer tipo de projeto. Possui
+licença MIT ou de domínio público. É um projeto com 193 contribuidores. Já utilizei em projetos
+pessoais para carregar imagens de diversos formatos. A biblioteca suporta os seguintes formatos
+de imagem: JPEG, PNG, BMP, PSD, TGA, GIF, HDR, PIC e PNM.
+
+\section{Configuração do ambiente de fuzzing}
+
+Para o ambiente de fuzzing, foi criado um repositório https://github.com/DenilsonMVS/fuzz. Esse repositório
+tinha o único objetivo de encaminhar os valores do fuzzer para uma função da biblioteca a ser testada. A
+função a ser testada era:
+
+% código
+
+stbi_uc *stbi_load_from_memory(stbi_uc const *buffer, int len, int *x, int *y, int *channels_in_file, int desired_channels);
+
+Essa função é responsável por receber o binário de uma imagem em vários formatos e retornar
+as cores dos pixels da imagem, sua altura e largura e o número de canais na imagem.
+
+Seguindo o tutorial em https://google.github.io/oss-fuzz/getting-started/new-project-guide/#testing-locally,
+foi criado os seguintes arquivos de configuração:
+
+
+% De alguma forma, mostre esse código no relatório
+
+build.sh
+
+% #!/bin/bash -eu
+
+% # Navigate to source directory
+% cd $SRC/fuzz
+
+% # Compile the fuzz target
+% $CC $CFLAGS -fsanitize=fuzzer,address -o $OUT/fuzz_target main.c $LIB_FUZZING_ENGINE
+
+
+Dockerfile
+
+% FROM gcr.io/oss-fuzz-base/base-builder
+
+% # Install dependencies
+% RUN apt-get update && apt-get install -y make clang
+
+% # Clone your repository
+% RUN git clone https://github.com/DenilsonMVS/fuzz.git $SRC/fuzz
+
+% WORKDIR $SRC/fuzz
+
+% # Copy the build script
+% COPY build.sh $SRC/
+
+project.yaml
+
+% homepage: "https://github.com/DenilsonMVS/fuzz"
+% language: c
+% primary_contact: "denilsonmvs@gmail.com"
+% main_repo: "https://github.com/DenilsonMVS/fuzz.git"
+% sanitizers:
+%   - address
+%   - undefined
+% architectures:
+%   - x86_64
+
+\section{Testes Desenvolvidos}
+
+
+
+
+\end{document}

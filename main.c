@@ -9,6 +9,7 @@ int fuzz_target(const uint8_t *data, size_t size) {
     if(m) {
         stbi_image_free(m);
     }
+    return 0;
 }
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
